@@ -205,7 +205,7 @@ TELEGRAM_BOT_TOKEN = st.secrets.get("TELEGRAM_BOT_TOKEN", "")
 
 APP_BASE_URL = "knocknockqr-fecj2m9lodr3ytlujyyw6s.streamlit.app"
 
-# Basit Hakaret / Küfür Filtresi Listesi (Genişletilebilir)
+# Basit Hakaret / Küfür Filtresi Listesi
 BANNED_WORDS = ["küfür", "hakaret", "salak", "aptal", "mal", "gerizekalı", "orospu", "piç", "amk", "aq", "siktir"]
 
 def contains_profanity(text):
@@ -266,21 +266,22 @@ I18N = {
         "btn_coming": "Geliyorum (3 dk)",
         "btn_moving": "Kapıya Bakıyorum",
         "btn_busy": "Müsait Değilim",
+        "btn_custom": "✏️ Özel Yanıt Yaz",
         "btn_block": "🚫 Bu Numarayı Engelle",
         "tg_title": "KnockKnockQR BİLDİRİMİ!",
         "tg_plate": "Konum/Daire:",
         "tg_msg": "Mesaj:",
         "tg_prompt": "Durumunuzu bildirmek için butona tıklayın:",
-        "reply_title": "KnockKnockQR - Yanıt Onayı",
-        "reply_success": "Yanıtınız kaydedildi:",
-        "reply_close": "Bu pencereyi kapatabilirsiniz.",
+        "reply_title": "KnockKnockQR - Ev Sahibi Yanıt Paneli",
+        "reply_success": "Yanıtınız başarıyla iletildi:",
+        "reply_close": "İşleminiz bittiğinde bu pencereyi kapatabilirsiniz.",
         "invalid_qr": "Geçersiz veya veritabanında bulunmayan QR Kod.",
         "err_duplicate_plate": "Bu daire/konum sistemde zaten kayıtlı!",
         "err_invalid_token": "Geçersiz veya daha önce kullanılmış Aktivasyon Kodu!",
         "err_invalid_phone": "Lütfen geçerli ve doğru bir telefon numarası giriniz.",
         "err_blocked": "Bu numaradan bu kapıya bildirim gönderimi engellenmiştir.",
-        "host_custom_label": "Ev Sahibi Özel Yanıt Mesajı:",
-        "host_custom_holder": "Örn: Lütfen paketi kapı önüne bırakın.",
+        "host_custom_label": "Gelen Mesaja Özel Yanıtınız:",
+        "host_custom_holder": "Örn: Paketi kapı önüne bırakabilirsiniz.",
         "host_send_btn": "Özel Yanıtı Gönder"
     },
     "EN": {
@@ -316,20 +317,21 @@ I18N = {
         "btn_coming": "On my way (3 mins)",
         "btn_moving": "Looking at the door",
         "btn_busy": "Not available",
+        "btn_custom": "✏️ Write Custom Reply",
         "btn_block": "🚫 Block This Number",
         "tg_title": "KnockKnockQR NOTIFICATION!",
         "tg_plate": "Location:",
         "tg_msg": "Message:",
         "tg_prompt": "Click a button below to update status:",
-        "reply_title": "KnockKnockQR - Response Confirmation",
-        "reply_success": "Your response has been recorded:",
-        "reply_close": "You can close this window.",
+        "reply_title": "KnockKnockQR - Resident Reply Panel",
+        "reply_success": "Your response has been sent:",
+        "reply_close": "You can close this window when done.",
         "invalid_qr": "Invalid or missing QR Code.",
         "err_duplicate_plate": "This location is already registered!",
         "err_invalid_token": "Invalid or already used Activation Code!",
         "err_invalid_phone": "Please enter a valid phone number.",
         "err_blocked": "Notifications from this number are blocked.",
-        "host_custom_label": "Host Custom Reply Message:",
+        "host_custom_label": "Your Custom Reply:",
         "host_custom_holder": "e.g., Please leave the package at the door.",
         "host_send_btn": "Send Custom Reply"
     },
@@ -366,20 +368,21 @@ I18N = {
         "btn_coming": "Иду (3 мин)",
         "btn_moving": "Смотрю к двери",
         "btn_busy": "Занят",
+        "btn_custom": "✏️ Написать ответ",
         "btn_block": "🚫 Заблокировать номер",
         "tg_title": "KnockKnockQR УВЕДОМЛЕНИЕ!",
         "tg_plate": "Место:",
         "tg_msg": "Сообщение:",
         "tg_prompt": "Нажмите кнопку ниже для ответа:",
-        "reply_title": "KnockKnockQR - Подтверждение ответа",
-        "reply_success": "Ваш ответ записан:",
+        "reply_title": "KnockKnockQR - Панель ответа жильца",
+        "reply_success": "Ваш ответ отправлен:",
         "reply_close": "Вы можете закрыть это окно.",
         "invalid_qr": "Недействительный QR-код.",
         "err_duplicate_plate": "Этот объект уже зарегистрирован!",
         "err_invalid_token": "Неверный или уже использованный код!",
         "err_invalid_phone": "Введите действительный номер телефона.",
         "err_blocked": "Уведомления заблокированы.",
-        "host_custom_label": "Собственный ответ хозяина:",
+        "host_custom_label": "Ваш ответ:",
         "host_custom_holder": "Например: Оставьте у двери.",
         "host_send_btn": "Отправить ответ"
     }
@@ -399,6 +402,7 @@ def send_telegram_inline_keyboard(chat_id, text, reply_notif_id, lang_dict):
     
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     
+    # Telegram butonlarına 5. seçenek olarak "✏️ Özel Yanıt Yaz" eklendi
     payload = {
         "chat_id": chat_id,
         "text": text,
@@ -409,6 +413,7 @@ def send_telegram_inline_keyboard(chat_id, text, reply_notif_id, lang_dict):
                 [{"text": lang_dict["btn_coming"], "url": f"{APP_BASE_URL}/?reply={reply_notif_id}&action={lang_dict['btn_coming']}"}],
                 [{"text": lang_dict["btn_moving"], "url": f"{APP_BASE_URL}/?reply={reply_notif_id}&action={lang_dict['btn_moving']}"}],
                 [{"text": lang_dict["btn_busy"], "url": f"{APP_BASE_URL}/?reply={reply_notif_id}&action={lang_dict['btn_busy']}"}],
+                [{"text": lang_dict["btn_custom"], "url": f"{APP_BASE_URL}/?reply={reply_notif_id}"}],
                 [{"text": lang_dict["btn_block"], "url": f"{APP_BASE_URL}/?reply={reply_notif_id}&action=BLOCK"}]
             ]
         }
@@ -425,8 +430,9 @@ qr_vehicle_id = query_params.get("v", None)
 reply_notif_id = query_params.get("reply", None)
 reply_action = query_params.get("action", None)
 
+# --- EV SAHİBİ YANIT EKRANI ---
 if reply_notif_id:
-    st.title(txt["reply_title"])
+    st.markdown(f"<div class='form-title'>{txt['reply_title']}</div>", unsafe_allow_html=True)
     
     notif_data = None
     if supabase:
@@ -438,40 +444,44 @@ if reply_notif_id:
             st.error(f"Error: {e}")
             
     if notif_data:
-        st.info(f"**Gelen Mesaj / Not:** {notif_data.get('incoming_preset', 'Belirtilmemiş')}")
+        # Kapıdaki ziyaretçiden gelen mesajı ev sahibine gösteriyoruz
+        st.success(f"📩 **Kapıdaki Mesaj:** {notif_data.get('incoming_preset', 'Yok')}")
         
+        # Eğer Telegram'da bir hazır butona bastıysa hemen durumunu güncelle
         if reply_action:
             try:
                 if reply_action == "BLOCK":
                     supabase.table("notifications").update({"status": "ENGELLENDI"}).eq("id", reply_notif_id).execute()
-                    st.success("Bu numara başarıyla engellendi.")
+                    st.error("🚫 Bu numara başarıyla engellendi.")
                 else:
                     supabase.table("notifications").update({"status": reply_action}).eq("id", reply_notif_id).execute()
-                    st.success(f"{txt['reply_success']} **{reply_action}**")
+                    st.info(f"{txt['reply_success']} **{reply_action}**")
             except Exception as e:
                 st.error(f"Error: {e}")
         
-        # Ev sahibi özel yanıt alanı
+        # EV SAHİBİ İÇİN ÖZEL YANIT YAZMA METİN KUTUSU VE BUTONU
         st.markdown("---")
         host_custom_reply = st.text_input(txt["host_custom_label"], placeholder=txt["host_custom_holder"])
+        
         if st.button(txt["host_send_btn"]):
-            if host_custom_reply.strip():
-                if contains_profanity(host_custom_reply):
-                    st.warning(txt["err_profanity"])
-                else:
-                    try:
-                        supabase.table("notifications").update({"status": host_custom_reply.strip()}).eq("id", reply_notif_id).execute()
-                        st.success(f"{txt['reply_success']} **{host_custom_reply.strip()}**")
-                    except Exception as e:
-                        st.error(f"Error: {e}")
+            clean_reply = host_custom_reply.strip()
+            if not clean_reply:
+                st.warning("Lütfen göndermek istediğiniz yanıtı yazın.")
+            elif contains_profanity(clean_reply):
+                st.warning(txt["err_profanity"])
             else:
-                st.warning("Lütfen bir yanıt yazın.")
+                try:
+                    supabase.table("notifications").update({"status": clean_reply}).eq("id", reply_notif_id).execute()
+                    st.success(f"✅ {txt['reply_success']} **{clean_reply}**")
+                except Exception as e:
+                    st.error(f"Error: {e}")
                 
-        st.info(txt["reply_close"])
+        st.markdown(f"<div class='brand-subtitle'>{txt['reply_close']}</div>", unsafe_allow_html=True)
     else:
-        st.error("Bildirim bulunamadı veya süresi doldu.")
+        st.error("Bildirim veritabanında bulunamadı veya süresi doldu.")
     st.stop()
 
+# --- ZİYARETÇİ BİLDİRİM GÖNDERME EKRANI ---
 if qr_vehicle_id:
     st.markdown(f"<div class='form-title'>{txt['notify_header']}</div>", unsafe_allow_html=True)
     
@@ -493,7 +503,7 @@ if qr_vehicle_id:
             sender_phone = st.text_input(txt["sender_phone"], placeholder="+...")
             selected_msg = st.radio("Status:", txt["presets"])
             
-            # Özel Not Alanı
+            # Ziyaretçi Özel Not Alanı
             custom_note = st.text_input(txt["custom_note_label"], placeholder=txt["custom_note_holder"])
 
             if st.button(txt["send_btn"]):
@@ -584,6 +594,7 @@ if qr_vehicle_id:
     else:
         st.error(txt["invalid_qr"])
 else:
+    # --- KAYIT EKRANI ---
     st.markdown(f"<div class='form-title'>{txt['reg_header']}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='form-subtitle'>{txt['reg_sub']}</div>", unsafe_allow_html=True)
 
