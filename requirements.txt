@@ -1,4 +1,4 @@
 streamlit
 supabase
 requests
-python-telegram-bot
+qrcode[pil]
