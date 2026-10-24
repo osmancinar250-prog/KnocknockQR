@@ -20,7 +20,7 @@ def get_image_base64(file_path):
             return f"data:image/png;base64,{base64.b64encode(image_file.read()).decode()}"
     return None
 
-logo_src = get_image_base64("logo.PNG") or get_image_base64("logo.png")
+logo_src = get_image_base64("Logo.PNG") or get_image_base64("Logo.png")
 
 # CSS Stilleri
 custom_css = """
