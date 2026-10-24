@@ -1,6 +1,7 @@
 import streamlit as st
 from supabase import create_client
 import requests
+import os
 
 # Sayfa yapılandırması
 st.set_page_config(
@@ -9,7 +10,11 @@ st.set_page_config(
     layout="centered"
 )
 
-# Supabase Bağlantısı (Güvenli Önbellekleme ve Hata Yönetimiyle)
+# Logo Gösterimi (logo.png varsa ekler)
+if os.path.exists("logo.png"):
+    st.image("logo.png", width=120)
+
+# Supabase Bağlantısı
 @st.cache_resource
 def init_supabase():
     try:
@@ -17,7 +22,7 @@ def init_supabase():
         key = st.secrets["SUPABASE_KEY"]
         return create_client(url, key)
     except Exception as e:
-        st.error("Veritabanı bağlantı yapılandırması eksik veya hatalı.")
+        st.error(f"Veritabanı bağlantı yapılandırma hatası: {e}")
         st.stop()
 
 supabase = init_supabase()
@@ -41,7 +46,7 @@ def send_telegram_notification(chat_id, message_text):
 st.title("🚪 KnockKnockQR")
 st.subheader("Temassız ve Gizlilik Odaklı Kapı Zili")
 
-# URL'den QR kodunu al (Modern Streamlit syntax)
+# URL'den QR kodunu al
 query_params = st.query_params
 qr_code = query_params.get("qr", None)
 
@@ -54,7 +59,7 @@ try:
     response = supabase.table("doors").select("*").eq("qr_code", qr_code).execute()
     door_data = response.data
 except Exception as e:
-    st.error("Veritabanına bağlanırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.")
+    st.error(f"Veritabanı sorgulama hatası: {e}")
     st.stop()
 
 if not door_data:
@@ -66,7 +71,7 @@ owner_name = door.get("owner_name", "Ev Sahibi")
 custom_status = door.get("custom_status", "Müsait")
 chat_id = door.get("telegram_chat_id")
 
-# Kapı / Ev Sahibi Durum Kartı
+# Kap / Ev Sahibi Durum Kartı
 st.info(f"📌 **Konum / Daire:** {owner_name}")
 
 if custom_status:
