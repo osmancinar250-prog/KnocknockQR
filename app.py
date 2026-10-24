@@ -203,7 +203,7 @@ SUPABASE_URL = st.secrets.get("SUPABASE_URL", "")
 SUPABASE_KEY = st.secrets.get("SUPABASE_KEY", "")
 TELEGRAM_BOT_TOKEN = st.secrets.get("TELEGRAM_BOT_TOKEN", "")
 
-APP_BASE_URL = "https://knocknockqr.streamlit.app"
+APP_BASE_URL = "knocknockqr-fecj2m9lodr3ytlujyyw6s.streamlit.app"
 
 @st.cache_resource
 def init_supabase():
