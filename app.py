@@ -10,41 +10,20 @@ st.set_page_config(
     layout="centered"
 )
 
-# Logo Gösterimi (logo.png varsa ekler)
+# Logo Gösterimi
 if os.path.exists("logo.png"):
     st.image("logo.png", width=120)
 
-# Supabase Bağlantısı
-@st.cache_resource
-def init_supabase():
-    try:
-        url = st.secrets["SUPABASE_URL"]
-        key = st.secrets["SUPABASE_KEY"]
-        return create_client(url, key)
-    except Exception as e:
-        st.error(f"Veritabanı bağlantı yapılandırma hatası: {e}")
-        st.stop()
-
-supabase = init_supabase()
-
-# Telegram Bildirim Fonksiyonu
-def send_telegram_notification(chat_id, message_text):
-    try:
-        token = st.secrets["TELEGRAM_BOT_TOKEN"]
-        url = f"https://api.telegram.org/bot{token}/sendMessage"
-        payload = {
-            "chat_id": chat_id,
-            "text": message_text,
-            "parse_mode": "Markdown"
-        }
-        response = requests.post(url, json=payload, timeout=5)
-        return response.status_code == 200
-    except Exception as e:
-        return False
-
-# Arayüz Başlığı
 st.title("🚪 KnockKnockQR")
-st.subheader("Temassız ve Gizlilik Odaklı Kapı Zili")
+
+# Supabase Bağlantısı
+try:
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+    supabase = create_client(url, key)
+except Exception as e:
+    st.error(f"Bağlantı ayarı okunamadı: {e}")
+    st.stop()
 
 # URL'den QR kodunu al
 query_params = st.query_params
@@ -71,7 +50,7 @@ owner_name = door.get("owner_name", "Ev Sahibi")
 custom_status = door.get("custom_status", "Müsait")
 chat_id = door.get("telegram_chat_id")
 
-# Kap / Ev Sahibi Durum Kartı
+# Kapı / Ev Sahibi Durum Kartı
 st.info(f"📌 **Konum / Daire:** {owner_name}")
 
 if custom_status:
@@ -79,6 +58,21 @@ if custom_status:
 
 st.markdown("---")
 st.write("Zil çalmak veya ev sahibine mesaj bırakmak için aşağıdaki seçenekleri kullanabilirsiniz:")
+
+# Telegram Bildirim Fonksiyonu
+def send_telegram_notification(chat_id, message_text):
+    try:
+        token = st.secrets["TELEGRAM_BOT_TOKEN"]
+        api_url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": message_text,
+            "parse_mode": "Markdown"
+        }
+        res = requests.post(api_url, json=payload, timeout=5)
+        return res.status_code == 200
+    except Exception as e:
+        return False
 
 # Ziyaretçi Mesaj Formu
 with st.form("visitor_form"):
