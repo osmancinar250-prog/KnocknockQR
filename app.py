@@ -425,35 +425,51 @@ qr_vehicle_id = query_params.get("v", None)
 reply_notif_id = query_params.get("reply", None)
 reply_action = query_params.get("action", None)
 
-if reply_notif_id and reply_action:
+if reply_notif_id:
     st.title(txt["reply_title"])
+    
+    notif_data = None
     if supabase:
         try:
-            if reply_action == "BLOCK":
-                supabase.table("notifications").update({"status": "ENGELLENDI"}).eq("id", reply_notif_id).execute()
-                st.success("Bu numara başarıyla engellendi.")
-            else:
-                supabase.table("notifications").update({"status": reply_action}).eq("id", reply_notif_id).execute()
-                st.success(f"{txt['reply_success']} **{reply_action}**")
-            st.info(txt["reply_close"])
+            res = supabase.table("notifications").select("*").eq("id", reply_notif_id).execute()
+            if res.data:
+                notif_data = res.data[0]
         except Exception as e:
             st.error(f"Error: {e}")
             
-    # Ev sahibi özel yanıt alanı
-    st.markdown("---")
-    host_custom_reply = st.text_input(txt["host_custom_label"], placeholder=txt["host_custom_holder"])
-    if st.button(txt["host_send_btn"]):
-        if host_custom_reply.strip():
-            if contains_profanity(host_custom_reply):
-                st.warning(txt["err_profanity"])
+    if notif_data:
+        st.info(f"**Gelen Mesaj / Not:** {notif_data.get('incoming_preset', 'Belirtilmemiş')}")
+        
+        if reply_action:
+            try:
+                if reply_action == "BLOCK":
+                    supabase.table("notifications").update({"status": "ENGELLENDI"}).eq("id", reply_notif_id).execute()
+                    st.success("Bu numara başarıyla engellendi.")
+                else:
+                    supabase.table("notifications").update({"status": reply_action}).eq("id", reply_notif_id).execute()
+                    st.success(f"{txt['reply_success']} **{reply_action}**")
+            except Exception as e:
+                st.error(f"Error: {e}")
+        
+        # Ev sahibi özel yanıt alanı
+        st.markdown("---")
+        host_custom_reply = st.text_input(txt["host_custom_label"], placeholder=txt["host_custom_holder"])
+        if st.button(txt["host_send_btn"]):
+            if host_custom_reply.strip():
+                if contains_profanity(host_custom_reply):
+                    st.warning(txt["err_profanity"])
+                else:
+                    try:
+                        supabase.table("notifications").update({"status": host_custom_reply.strip()}).eq("id", reply_notif_id).execute()
+                        st.success(f"{txt['reply_success']} **{host_custom_reply.strip()}**")
+                    except Exception as e:
+                        st.error(f"Error: {e}")
             else:
-                try:
-                    supabase.table("notifications").update({"status": host_custom_reply.strip()}).eq("id", reply_notif_id).execute()
-                    st.success(f"{txt['reply_success']} **{host_custom_reply.strip()}**")
-                except Exception as e:
-                    st.error(f"Error: {e}")
-        else:
-            st.warning("Lütfen bir yanıt yazın.")
+                st.warning("Lütfen bir yanıt yazın.")
+                
+        st.info(txt["reply_close"])
+    else:
+        st.error("Bildirim bulunamadı veya süresi doldu.")
     st.stop()
 
 if qr_vehicle_id:
